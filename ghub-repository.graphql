@@ -1,0 +1,177 @@
+query Repository (
+  $owner:String!,
+  $name:String!,
+  $afterFork:String,
+  $afterCommitComment:String,
+  $afterIssue:String,
+  $afterLabel:String,
+  $afterPullRequest:String,
+  $getFields:Boolean!,
+  $getCommitComments:Boolean!,
+  $getForks:Boolean!,
+  $getIssues:Boolean!,
+  $getLabels:Boolean!,
+  $getPullRequests:Boolean!,
+)
+{
+  repository(owner:$owner, name:$name) {
+    ...RepositoryFields @include(if:$getFields)
+    ...RepositoryCommitComments @include(if:$getCommitComments)
+    ...RepositoryForks @include(if:$getForks)
+    ...RepositoryIssues @include(if:$getIssues)
+    ...RepositoryLabels @include(if:$getLabels)
+    ...RepositoryPullRequests @include(if:$getPullRequests)
+  }
+}
+
+fragment RepositoryFields on Repository {
+  name
+  id
+  createdAt
+  updatedAt
+  nameWithOwner
+  description
+  defaultBranchRef { name }
+  isArchived
+  isFork
+  isLocked
+  isMirror
+  isPrivate
+  hasIssuesEnabled
+  hasWikiEnabled
+  licenseInfo { name }
+  stargazers { totalCount }
+  watchers { totalCount }
+}
+
+fragment RepositoryCommitComments on Repository {
+  commitComments(first:100, after:$afterCommitComment) {
+    pageInfo { endCursor hasNextPage }
+    edges {
+      node {
+	commit { oid }
+	path
+	position
+        author { login }
+	body
+      }
+    }
+  }
+}
+
+fragment RepositoryForks on Repository {
+  forks(
+    first:100,
+    after:$afterFork,
+    orderBy: { field:UPDATED_AT, direction:DESC }
+  ) {
+    pageInfo { endCursor hasNextPage }
+    edges {
+      node {
+	id
+	owner { login }
+	name
+      }
+    }
+  }
+}
+
+fragment RepositoryIssues on Repository {
+  issues(
+    first:100,
+    after:$afterIssue,
+    orderBy: { field:UPDATED_AT, direction:DESC }
+  ) {
+    pageInfo { endCursor hasNextPage }
+    edges {
+      node {
+        number
+        state
+        author { login }
+        title
+        createdAt
+        updatedAt
+        closedAt
+        locked
+        milestone { id }
+        body
+	comments (first:100) {
+	  pageInfo { endCursor hasNextPage }
+	  edges {
+	    node {
+	      databaseId
+              author { login }
+	      createdAt
+	      updatedAt
+              body
+	    }
+	  }
+	}
+      }
+    }
+  }
+}
+
+fragment RepositoryLabels on Repository {
+  labels (first:100, after:$afterLabel) {
+    pageInfo { endCursor hasNextPage }
+    edges {
+      node {
+	id
+	name
+	color
+	description
+      }
+    }
+  }
+}
+
+fragment RepositoryPullRequests on Repository {
+  pullRequests(
+    first:100,
+    after:$afterPullRequest,
+    orderBy: { field:UPDATED_AT, direction:DESC }
+  ) {
+    pageInfo { endCursor hasNextPage }
+    edges {
+      node {
+        number
+        state
+        author { login }
+        title
+        createdAt
+        updatedAt
+        closedAt
+        mergedAt
+        locked
+        maintainerCanModify
+        isCrossRepository
+        milestone { id }
+        body
+        baseRef {
+          name
+          repository { nameWithOwner }
+	}
+        headRef {
+          name
+          repository {
+            owner { login }
+            nameWithOwner
+	  }
+	}
+	comments (first:100) {
+	  pageInfo { endCursor hasNextPage }
+	  edges {
+	    node {
+	      databaseId
+              author { login }
+	      createdAt
+	      updatedAt
+	      body
+	    }
+	  }
+	}
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+query PullRequest (
+  $owner:String!,
+  $name:String!,
+  $number:Int!
+  $getFields:Boolean!,
+  $getComments:Boolean!,
+  $afterComment:String
+)
+{
+  repository(owner:$owner, name:$name) {
+    pullRequest(number:$number) {
+      ...PullRequestFields @include(if:$getFields)
+      ...PullRequestComments @include(if:$getComments)
+    }
+  }
+}
+
+fragment PullRequestFields on PullRequest {
+  number
+  state
+  author { login }
+  title
+  createdAt
+  updatedAt
+  closedAt
+  mergedAt
+  locked
+  maintainerCanModify
+  isCrossRepository
+  milestone { id }
+  body
+  baseRef {
+    name
+    repository { nameWithOwner }
+  }
+  headRef {
+    name
+    repository {
+      owner { login }
+      nameWithOwner
+    }
+  }
+}
+
+fragment PullRequestComments on PullRequest {
+  comments (first:100, after:$afterComment) {
+    pageInfo { endCursor hasNextPage }
+    edges {
+      node {
+	databaseId
+        author { login }
+	createdAt
+	updatedAt
+        body
+      }
+    }
+  }
+}

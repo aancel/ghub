@@ -1,0 +1,44 @@
+query Issue (
+  $owner:String!,
+  $name:String!,
+  $number:Int!
+  $getFields:Boolean!,
+  $getComments:Boolean!,
+  $afterComment:String
+)
+{
+  repository(owner:$owner, name:$name) {
+    issue(number:$number) {
+      ...IssueFields @include(if:$getFields)
+      ...IssueComments @include(if:$getComments)
+    }
+  }
+}
+
+fragment IssueFields on Issue {
+  number
+  state
+  author { login }
+  title
+  createdAt
+  updatedAt
+  closedAt
+  locked
+  milestone { id }
+  body
+}
+
+fragment IssueComments on Issue {
+  comments (first:100, after:$afterComment) {
+    pageInfo { endCursor hasNextPage }
+    edges {
+      node {
+	databaseId
+        author { login }
+	createdAt
+	updatedAt
+        body
+      }
+    }
+  }
+}
