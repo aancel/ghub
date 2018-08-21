@@ -35,6 +35,14 @@
 
 (require 'ghub)
 
+(require 'cl-lib)
+(require 'warnings)
+(cl-eval-when (compile load eval)
+  (display-warning 'glab "\
+The `glab.el' library is now part of the `ghub' package.
+Please uninstall the `glab' package.  Otherwise that old version of this
+library would shadow the one that comes with the `ghub' package."))
+
 (defconst glab-default-host "gitlab.com/api/v4"
   "The default host that is used if `glab.host' is not set.")
 
