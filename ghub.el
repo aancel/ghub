@@ -57,6 +57,8 @@
 (require 'url-auth)
 (require 'url-http)
 
+(setq url-debug t)
+
 (eval-when-compile
   (require 'subr-x))
 
@@ -470,6 +472,7 @@ Signal an error if the id cannot be determined."
         (funcall handler (car url-callback-arguments) req)))))
 
 (defun ghub--handle-response (status req)
+  (url-debug 'ghub "status: %S" status)
   (let ((buffer (current-buffer)))
     (unwind-protect
         (progn

@@ -311,6 +311,7 @@ See Info node `(ghub)GraphQL Support'."
           (setq loc (treepy-next loc)))))))
 
 (defun ghub--graphql-handle-response (status req)
+  (url-debug 'ghub "status: %S" status)
   (let ((buffer (current-buffer)))
     (unwind-protect
         (progn
